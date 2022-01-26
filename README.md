@@ -11,14 +11,19 @@ The solution utilizes following services:
 
 •	GitHub Actions
 Workflow Orchestration tool that will host the Pipeline. 
+
 •	AWS CodeDeploy
 AWS service to manage deployment on Amazon EC2 Autoscaling Group.
+
 •	AWS Auto Scaling
 AWS Service to help maintain application availability and elasticity by automatically adding or removing EC2 instances. 
+
 •	Amazon EC2
 Destination Compute server for the application deployment 
+
 •	AWS CloudFormation
 AWS IaC service used to spin up the initial infrastructure on AWS side
+
 •	IAM OIDC identity provider
 Federated authentication service to establish trust between GitHub and AWS to allow GitHub Actions to deploy on AWS without maintaining AWS Secrets and credentials. 
 
