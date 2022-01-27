@@ -262,7 +262,7 @@ Resources:
               systemctl enable tomcat.service
               systemctl status tomcat.service
               yum install ruby -y
-              wget https://aws-codedeploy-${AWS::Region}.s3.{AWS::Region}.amazonaws.com/latest/install
+              wget https://aws-codedeploy-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/latest/install
               chmod +x ./install
               ./install auto
               cd /tmp
