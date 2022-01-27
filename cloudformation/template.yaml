@@ -31,7 +31,7 @@ Parameters:
     Description: "The Amazon EC2 Linux instance Amazon Machine Image (AMI), which designates the configuration of the new instance."
   ThumbprintList:
     Type: String 
-    Default: a031c46782e6e6c662c2c87c76da9aa62ccabd8e
+    Default: 6938fd4d98bab03faadb97b34396831e3780aea1
     Description: A thumbprint of an Open ID Connector is a SHA1 hash of the public certificate of the host
   GithubRepoName:
     Type: String 
