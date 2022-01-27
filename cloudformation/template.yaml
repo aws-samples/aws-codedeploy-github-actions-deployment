@@ -12,19 +12,22 @@ Parameters:
     Type: CommaDelimitedList
     Default: subnet-XXXXXX, subnet-XXXXXX, subnet-XXXXXX
     Description: The name of the VPC subnet to use for Application loadbalancer
-  MinSize:
+  AutoScalingGroupMinSize:
     Type: Number
     Default: 1
-  MaxSize:
+  AutoScalingGroupMaxSize:
     Type: Number
     Default: 2
+  AutoScalingGroupDesiredCapacity:
+    Type: Number
+    Default: 1
   VpcId:
     Type: String
     Default: vpc-0b2c3bd51c4fb97b2
     Description: The ID of the Amazon Virtual Private Cloud (VPC) to use for Amazon EC2 instances.
   ImageId:
-    Type: String
-    Default: ami-0ed9277fb7eb570c9
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
     Description: "The Amazon EC2 Linux instance Amazon Machine Image (AMI), which designates the configuration of the new instance."
   ThumbprintList:
     Type: String 
@@ -269,10 +272,9 @@ Resources:
     Properties:
       HealthCheckType: ELB
       HealthCheckGracePeriod: 300
-      MinSize:
-        Ref: MinSize
-      MaxSize:
-        Ref: MaxSize
+      DesiredCapacity: !Ref AutoScalingGroupDesiredCapacity
+      MinSize: !Ref AutoScalingGroupMinSize
+      MaxSize: !Ref AutoScalingGroupMaxSize
       LaunchConfigurationName:
         Ref: WebappLaunchConfig
       VPCZoneIdentifier:
