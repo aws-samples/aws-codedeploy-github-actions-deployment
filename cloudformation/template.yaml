@@ -1,25 +1,31 @@
+AWSTemplateFormatVersion: 2010-09-09
 Parameters:
-
+  InstanceType:
+    Type: String
+    Default: t2.medium
+    Description: The type of Amazon EC2 Linux instances that will be launched for this project.
   AppSubnets:
     Type: CommaDelimitedList
     Default: subnet-XXXXXX, subnet-XXXXXX, subnet-XXXXXX
+    Description: The name of the VPC subnet to use for Amazon EC2 instances launched for this project
   ALBSubnets:
     Type: CommaDelimitedList
     Default: subnet-XXXXXX, subnet-XXXXXX, subnet-XXXXXX
+    Description: The name of the VPC subnet to use for Application loadbalancer
   MinSize:
     Type: Number
     Default: 1
   MaxSize:
     Type: Number
     Default: 2
-  VPC:
+  VpcId:
     Type: String
     Default: vpc-0b2c3bd51c4fb97b2
-    Description: VPC ID
-  AMIID:
+    Description: The ID of the Amazon Virtual Private Cloud (VPC) to use for Amazon EC2 instances.
+  ImageId:
     Type: String
     Default: ami-0ed9277fb7eb570c9
-    Description: "Enter Amazon Linux AMI ID for your region"
+    Description: "The Amazon EC2 Linux instance Amazon Machine Image (AMI), which designates the configuration of the new instance."
   ThumbprintList:
     Type: String 
     Default: a031c46782e6e6c662c2c87c76da9aa62ccabd8e
@@ -124,7 +130,7 @@ Resources:
     Properties:
       GroupDescription: allow access to ALB from internet
       VpcId:
-        Ref: VPC
+        Ref: VpcId
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: '8080'
@@ -135,7 +141,7 @@ Resources:
     Properties:
       GroupDescription: allow access to Webapp from ALB
       VpcId:
-        Ref: VPC
+        Ref: VpcId
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: '8080'
@@ -185,8 +191,9 @@ Resources:
     Properties:
       AssociatePublicIpAddress: true
       ImageId:
-        Ref: AMIID
-      InstanceType: t2.medium
+        Ref: ImageId
+      InstanceType: 
+        Ref: InstanceType
       SecurityGroups:
         - Ref: WebappSecurityGroup
       IamInstanceProfile:
@@ -202,7 +209,6 @@ Resources:
               wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.43/bin/apache-tomcat-9.0.43.zip
               wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.43/bin/apache-tomcat-9.0.43.zip.asc
               wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.43/bin/apache-tomcat-9.0.43.zip.sha512
-              # 3dbc5a1b621598beb3219bac8c78fcaeac9b2169b5aa83fc8c0937275dd9f7701147573336804b28389f8e761a92a2da3327e66f46b97fed37fa374d52126e9d *apache-tomcat-9.0.43.tar.gz
 
               # verify hash / are these two outputs the same
               cat apache-tomcat-9.0.43.zip.sha512
@@ -210,8 +216,6 @@ Resources:
 
               gpg --keyserver pgpkeys.mit.edu --recv-key A9C5DF4D22E99998D9875A5110C01C5A2F6059E7
               gpg --verify apache-tomcat-9.0.43.zip.asc apache-tomcat-9.0.43.zip
-
-              #aws s3 cp s3://suresh-bucket1/SpringBootHelloWorldExampleApplication.war /usr/local/tomcat9/webapps/SpringBootHelloWorldExampleApplication.war
 
               # if hash and signature are ok:
               unzip apache-tomcat-9.0.43.zip
@@ -252,7 +256,7 @@ Resources:
               systemctl enable tomcat.service
               systemctl status tomcat.service
               yum install ruby -y
-              wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install
+              wget https://aws-codedeploy-${AWS::Region}.s3.{AWS::Region}.amazonaws.com/latest/install
               chmod +x ./install
               ./install auto
               cd /tmp
@@ -309,7 +313,7 @@ Resources:
       Port: 8080
       Protocol: HTTP
       VpcId:
-        Ref: VPC
+        Ref: VpcId
 Outputs:
   WebappUrl:
     Description: Webapp URL
