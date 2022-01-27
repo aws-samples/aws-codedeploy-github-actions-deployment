@@ -15,12 +15,15 @@ Parameters:
   AutoScalingGroupMinSize:
     Type: Number
     Default: 1
+    Description: "Enter the Min Size for the ASG"
   AutoScalingGroupMaxSize:
     Type: Number
     Default: 2
+    Description: "Enter the Max Size for the ASG"
   AutoScalingGroupDesiredCapacity:
     Type: Number
     Default: 1
+    Description: "Enter the Max Size for the ASG"
   VpcId:
     Type: String
     Default: vpc-0b2c3bd51c4fb97b2
@@ -56,7 +59,7 @@ Resources:
         - 'arn:aws:iam::aws:policy/AmazonSSMFullAccess'
       Policies:
         -
-          PolicyName: "allow-webapp-deployment-bucket-bucket"
+          PolicyName: "allow-webapp-deployment-bucket-policy"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -136,8 +139,8 @@ Resources:
         Ref: VpcId
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: '8080'
-        ToPort: '8080'
+        FromPort: 8080
+        ToPort: 8080
         CidrIp: 0.0.0.0/0
   WebappSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -147,8 +150,8 @@ Resources:
         Ref: VpcId
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: '8080'
-        ToPort: '8080'
+        FromPort: 8080
+        ToPort: 8080
         SourceSecurityGroupId:
           Ref: ALBSecurityGroup
   WebappDeploymentBucket:
