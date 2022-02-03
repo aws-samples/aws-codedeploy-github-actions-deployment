@@ -1,4 +1,27 @@
 AWSTemplateFormatVersion: 2010-09-09
+Description: 'Cloudformation for provisioning services required to setup the CI/CD using GitHub actions and CodeDeploy'
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Network Configurations"
+        Parameters:
+          - VpcId
+          - AppPrivateSubnets
+          - ALBPublicSubnets
+      - Label:
+          default: "Autoscaling configurations"
+        Parameters:
+          - ImageId
+          - InstanceType
+          - AutoScalingGroupMinSize
+          - AutoScalingGroupMaxSize
+          - AutoScalingGroupDesiredCapacity
+      - Label:
+          default: "Github configurations"
+        Parameters:
+          - GithubRepoName
+          - ThumbprintList          
 Parameters:
   VpcId:
     Type: AWS::EC2::VPC::Id
