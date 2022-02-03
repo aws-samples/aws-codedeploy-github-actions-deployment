@@ -1,20 +1,27 @@
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: The ID of the Amazon Virtual Private Cloud (VPC) to use for Amazon EC2 instances.
+  
+  AppPrivateSubnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: The name of the VPC private subnet to use for Amazon EC2 instances launched for this project
+  ALBPublicSubnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: The name of the VPC public subnet to use for External Application loadbalancer. Use private subnets for internal ALB
+
+  ImageId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+    Description: "The Amazon EC2 Linux instance Amazon Machine Image (AMI), which designates the configuration of the new instance."
   InstanceType:
     Type: String
     Default: t2.medium
     Description: The type of Amazon EC2 Linux instances that will be launched for this project.
-  AppSubnets:
-    Type: CommaDelimitedList
-    Default: subnet-XXXXXX, subnet-XXXXXX, subnet-XXXXXX
-    Description: The name of the VPC subnet to use for Amazon EC2 instances launched for this project
-  ALBSubnets:
-    Type: CommaDelimitedList
-    Default: subnet-XXXXXX, subnet-XXXXXX, subnet-XXXXXX
-    Description: The name of the VPC subnet to use for Application loadbalancer
   AutoScalingGroupMinSize:
     Type: Number
-    Default: 1
+    Default: 2
     Description: "Enter the Min Size for the ASG"
   AutoScalingGroupMaxSize:
     Type: Number
@@ -22,16 +29,8 @@ Parameters:
     Description: "Enter the Max Size for the ASG"
   AutoScalingGroupDesiredCapacity:
     Type: Number
-    Default: 1
+    Default: 2
     Description: "Enter the Max Size for the ASG"
-  VpcId:
-    Type: String
-    Default: vpc-0b2c3bd51c4fb97b2
-    Description: The ID of the Amazon Virtual Private Cloud (VPC) to use for Amazon EC2 instances.
-  ImageId:
-    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
-    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
-    Description: "The Amazon EC2 Linux instance Amazon Machine Image (AMI), which designates the configuration of the new instance."
   ThumbprintList:
     Type: String 
     Default: 6938fd4d98bab03faadb97b34396831e3780aea1
@@ -44,6 +43,8 @@ Resources:
   WebappRole:
     Type: "AWS::IAM::Role"
     Properties:
+      Path: "/"
+      RoleName: WebappRole
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -281,7 +282,7 @@ Resources:
       LaunchConfigurationName:
         Ref: WebappLaunchConfig
       VPCZoneIdentifier:
-        Ref: AppSubnets
+        Ref: AppPrivateSubnets
       TargetGroupARNs:
         - Ref: ALBTargetGroup
       Tags:
@@ -305,7 +306,7 @@ Resources:
     Properties:
       Scheme: internet-facing
       Subnets:
-        Ref: ALBSubnets
+        Ref: ALBPublicSubnets
       SecurityGroups:
         - Ref: ALBSecurityGroup
   ALBTargetGroup:
