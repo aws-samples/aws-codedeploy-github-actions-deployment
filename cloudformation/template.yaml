@@ -362,6 +362,6 @@ Outputs:
   ApplicationName:
     Description: CodeDeploy Application name
     Value: !Ref WebappApplication
-  GithubIAMROleName:
+  GithubIAMRoleArn:
     Description: IAM role for GitHub
-    Value: !Ref GitHubIAMRole
+    Value: !GetAtt GitHubIAMRole.Arn
