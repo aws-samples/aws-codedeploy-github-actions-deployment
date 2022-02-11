@@ -5,8 +5,8 @@ on:
 
 env:
   applicationfolder: spring-boot-hello-world-example
-  AWS_REGION: us-west-2
-  S3BUCKET: codedeploystack-webappdeploymentbucket-kphg5npw1ctx
+  AWS_REGION: ##region##
+  S3BUCKET: ##s3-bucket## 
 
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
         name: Checkout Repository
 
-      - uses: aws-actions/configure-aws-credentials@master
+      - uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
           role-session-name: GitHub-Action-Role
@@ -52,7 +52,7 @@ jobs:
       contents: read
     steps:
     - uses: actions/checkout@v2
-    - uses: aws-actions/configure-aws-credentials@master
+    - uses: aws-actions/configure-aws-credentials@v1
       with:
         role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
         role-session-name: GitHub-Action-Role
@@ -60,4 +60,4 @@ jobs:
     - run: |
         echo "Deploying branch ${{ env.GITHUB_REF }} to ${{ github.event.inputs.environment }}"
         commit_hash=`git rev-parse HEAD`
-        aws deploy create-deployment --application-name CodeDeployAppNameWithASG --deployment-group-name CodeDeployGroupName --github-location repository=aws-samples/aws-codedeploy-github-actions-deployment,commitId=$commit_hash --ignore-application-stop-failures
+        aws deploy create-deployment --application-name CodeDeployAppNameWithASG --deployment-group-name CodeDeployGroupName --github-location repository=##repo-name## ,commitId=$commit_hash --ignore-application-stop-failures
