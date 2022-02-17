@@ -1,31 +1,27 @@
 ## Integrating with GitHub Actions – CICD pipeline to Deploy a Web App to Amazon EC2
 
+Many Organizations adopt [DevOps Practices](file:///Users/smmoolya/Downloads/DevOps practices) in an attempt to innovate faster through automating and streamlining the software development and infrastructure management processes. Besides cultural adoption, DevOps also suggests following certain best practices and Continuous Integration and Continuous Delivery(CICD) is amongst the important ones to start with. CICD practice helps reduce time to release new software updates by automating deployment activities. There are many tools available to implement this practice. While AWS has set of native tools to help achieve your CICD goals, it also offers flexibility and extensibility in integrating with a vast number of third party tools.
+
 In this post, you will use GitHub Actions to create CICD workflow and AWS CodeDeploy to deploy a sample Java SpringBoot application to EC2 instances in an Autoscaling group.
 
-GitHub Actions is a feature on GitHub’s popular development platform that helps you automate your software development workflows in the same place you store code and collaborate on pull requests and issues. You can write individual tasks called actions, and combine them to create a custom workflow. Workflows are custom automated processes that you can set up in your repository to build, test, package, release, or deploy any code project on GitHub.
 
-AWS CodeDeploy makes it possible to automate the deployment of code to variety of compute services such as Amazon EC2, AWS Fargate, AWS Lambda, and your on-premises servers.
-Solution Overview
+[GitHub Actions](https://help.github.com/en/actions) is a feature on GitHub’s popular development platform that helps you automate your software development workflows in the same place you store code and collaborate on pull requests and issues. You can write individual tasks called actions, and combine them to create a custom workflow. Workflows are custom automated processes that you can set up in your repository to build, test, package, release, or deploy any code project on GitHub.
+
+[AWS CodeDeploy](https://aws.amazon.com/codedeploy/) is a deployment service that automates application deployments to EC2 instances, on-premises instances, serverless AWS Lambda functions, or Amazon Elastic Container Service (Amazon ECS) services.
+
+
+## Solution Overview
 
 The solution utilizes following services:
 
-•	GitHub Actions
-Workflow Orchestration tool that will host the Pipeline. 
+1.	[GitHub Actions](https://docs.github.com/en/actions) : Workflow Orchestration tool that will host the Pipeline. 
+2.	[AWS CodeDeploy](https://aws.amazon.com/codedeploy/) : AWS service to manage deployment on Amazon EC2 Autoscaling Group.
+3.	[AWS Auto Scaling](https://aws.amazon.com/ec2/autoscaling/) : AWS Service to help maintain application availability and elasticity by automatically adding or removing EC2 instances. 
+4.	[Amazon EC2](https://docs.aws.amazon.com/ec2/index.html?nc2=h_ql_doc_ec2#amazon-ec2) : Destination Compute server for the application deployment 
+5.	[AWS CloudFormation](https://aws.amazon.com/cloudformation/) : AWS IaC service used to spin up the initial infrastructure on AWS side
+6.	[IAM OIDC identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) : Federated authentication service to establish trust between GitHub and AWS to allow GitHub Actions to deploy on AWS without maintaining AWS Secrets and credentials. 
+7.	[Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html) : Amazon S3 to store the deployment artifacts.
 
-•	AWS CodeDeploy
-AWS service to manage deployment on Amazon EC2 Autoscaling Group.
-
-•	AWS Auto Scaling
-AWS Service to help maintain application availability and elasticity by automatically adding or removing EC2 instances. 
-
-•	Amazon EC2
-Destination Compute server for the application deployment 
-
-•	AWS CloudFormation
-AWS IaC service used to spin up the initial infrastructure on AWS side
-
-•	IAM OIDC identity provider
-Federated authentication service to establish trust between GitHub and AWS to allow GitHub Actions to deploy on AWS without maintaining AWS Secrets and credentials. 
 
 ## Prerequisites
 Before you begin, you need to complete the following prerequisites:
@@ -75,21 +71,21 @@ To deploy the CloudFormation template, complete the following steps:
     Navigate to template.yml file in your cloned repository at “aws-codedeploy-github-actions-deployment/cloudformation/template.yaml” 
     7.	Select the template.yml file and click next.
     8.	In Specify Stack Details, add or modify values as needed.
-        o	Stack name = CodeDeployStack.
-        o	VPC and Subnets = (these are pre-populated for you) you can change these values if you prefer to use your own Subnets)
-        o	GitHubThumbprintList = 6938fd4d98bab03faadb97b34396831e3780aea1
-        o	GitHubRepoName – Name of your GitHub personal repository which you created.
+        * Stack name = CodeDeployStack.
+        * VPC and Subnets = (these are pre-populated for you) you can change these values if you prefer to use your own Subnets)
+        * GitHubThumbprintList = 6938fd4d98bab03faadb97b34396831e3780aea1
+        * GitHubRepoName – Name of your GitHub personal repository which you created.
     9.	On the Options page, click Next.
     10.	Select the acknowledgement box to allow the creation of IAM resources, and then click Create. 
     It will take CloudFormation about 10 minutes to create all the resources. This stack would create below resources.
-        o	2 EC2 Linux instances with Tomcat server and CodeDeploy agent installed 
-        o	Autoscaling group with Internet Application load balancer
-        o	CodeDeploy application name and deployment group
-        o	S3 bucket to store build artifacts
-        o	IAM OIDC identity provider
-        o	Instance profile for EC2 
-        o	Service role for CodeDeploy
-        o	Security groups for ALB and EC2
+       * 2 EC2 Linux instances with Tomcat server and CodeDeploy agent installed 
+       * Autoscaling group with Internet Application load balancer
+       * CodeDeploy application name and deployment group
+       * S3 bucket to store build artifacts
+       * IAM OIDC identity provider
+       * Instance profile for EC2 
+       * Service role for CodeDeploy
+       * Security groups for ALB and EC2
         
 ## GitHub configuration and Testing
 
