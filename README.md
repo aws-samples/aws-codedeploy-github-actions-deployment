@@ -44,6 +44,57 @@ The following steps provide a high-level overview of the walkthrough:
   5.	Integrate CodeDeploy with GitHub
   6.	Trigger the GitHub Action to build and deploy the code.
   7.	Verify the deployment.
+
+## Download the source code
+
+Clone the source code repository aws-codedeploy-github-actions-deployment 
+
+    git clone https://github.com/aws-samples/aws-codedeploy-github-actions-deployment.git
+
+Create an empty repository in your personal GitHub account. To create a GitHub repository, see Create a repo . Clone this repo to your laptop. Ignore the warning about cloning an empty repository.
+
+    git clone https://github.com/<username>/<repoName>.git
+
+    e.g. git clone https://github.com/mahbir/GitActionsDeploytoAWS.git
+    
+Copy over the code. We need contents from hidden .github folder for GitHub actions to work
+
+    cp -r aws-codedeploy-github-actions-deployment/. <new repository> 
+
+    e.g. GitActionsDeploytoAWS
+
+## Deploying the CloudFormation template
+To deploy the CloudFormation template, complete the following steps:
+
+    1.	Open AWS CloudFormation console. Enter your account ID, user name and Password. 
+    2.	Check your region, this solution uses us-east-1.
+    3.	If this is  new AWS CloudFormation account, click Create New Stack. Otherwise, click Create Stack.
+    4.	Select Template is Ready
+    5.	Click Upload a template file
+    6.	Click Choose File, 
+    Navigate to template.yml file in your cloned repository at “aws-codedeploy-github-actions-deployment/cloudformation/template.yaml” 
+    7.	Select the template.yml file and click next.
+    8.	In Specify Stack Details, add or modify values as needed.
+        o	Stack name = CodeDeployStack.
+        o	VPC and Subnets = (these are pre-populated for you) you can change these values if you prefer to use your own Subnets)
+        o	GitHubThumbprintList = 6938fd4d98bab03faadb97b34396831e3780aea1
+        o	GitHubRepoName – Name of your GitHub personal repository which you created.
+    9.	On the Options page, click Next.
+    10.	Select the acknowledgement box to allow the creation of IAM resources, and then click Create. 
+    It will take CloudFormation about 10 minutes to create all the resources. This stack would create below resources.
+        o	2 EC2 Linux instances with Tomcat server and CodeDeploy agent installed 
+        o	Autoscaling group with Internet Application load balancer
+        o	CodeDeploy application name and deployment group
+        o	S3 bucket to store build artifacts
+        o	IAM OIDC identity provider
+        o	Instance profile for EC2 
+        o	Service role for CodeDeploy
+        o	Security groups for ALB and EC2
+        
+## GitHub configuration and Testing
+
+    Please follow the blog post to setup GitHub actions and test the CICD flow.
+
 ## Clean up
 
 To avoid incurring future changes, clean up the resources you created.
