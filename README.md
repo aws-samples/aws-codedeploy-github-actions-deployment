@@ -22,6 +22,8 @@ The solution utilizes following services:
 6.	[IAM OIDC identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) : Federated authentication service to establish trust between GitHub and AWS to allow GitHub Actions to deploy on AWS without maintaining AWS Secrets and credentials. 
 7.	[Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html) : Amazon S3 to store the deployment artifacts.
 
+The following diagram illustrates the architecture for the solution:
+![Alt Text](aws-coodedeplooy-github-action-deploymentV3.png?raw=true  "Title")
 
 ## Prerequisites
 Before you begin, you need to complete the following prerequisites:
