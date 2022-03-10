@@ -500,9 +500,15 @@ Resources:
       Protocol: HTTP
       VpcId: !Ref VPC
 Outputs:
+
   WebappUrl:
     Description: Webapp URL
-    Value: !GetAtt ApplicationLoadBalancer.DNSName
+    Value: 
+      Fn::Join: 
+      - ''
+      - - http://
+        - !GetAtt ApplicationLoadBalancer.DNSName
+        - ':8080/SpringBootHelloWorldExampleApplication' 
   DeploymentGroup:
     Description: Webapp Deployment Group
     Value: !Ref WebappDeploymentGroup
