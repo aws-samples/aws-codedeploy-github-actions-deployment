@@ -53,7 +53,7 @@ Parameters:
   ImageId:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
-    Description: "The Amazon EC2 Linux instance Amazon Machine Image (AMI), which designates the configuration of the new instance."
+    Description: The Amazon EC2 Linux instance Amazon Machine Image (AMI), which designates the configuration of the new instance.
   InstanceType:
     Type: String
     Default: t2.medium
@@ -61,15 +61,15 @@ Parameters:
   AutoScalingGroupMinSize:
     Type: Number
     Default: 2
-    Description: "Enter the Min Size for the ASG"
+    Description: Enter the Min Size for the ASG
   AutoScalingGroupMaxSize:
     Type: Number
     Default: 2
-    Description: "Enter the Max Size for the ASG"
+    Description: Enter the Max Size for the ASG
   AutoScalingGroupDesiredCapacity:
     Type: Number
     Default: 2
-    Description: "Enter the Max Size for the ASG"
+    Description: Enter the Max Size for the ASG
   ThumbprintList:
     Type: String 
     Default: 6938fd4d98bab03faadb97b34396831e3780aea1
@@ -214,7 +214,7 @@ Resources:
       SubnetId: !Ref PrivateSubnet2
 
   WebappRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
       Path: "/"
       RoleName: WebappRole
@@ -251,7 +251,7 @@ Resources:
           ThumbprintList:
              - !Ref ThumbprintList 
   GitHubIAMRole:
-      Type: "AWS::IAM::Role"
+      Type: AWS::IAM::Role
       Properties:
           Path: "/"
           RoleName: CodeDeployRoleforGitHub
@@ -287,11 +287,11 @@ Resources:
                 Resource: !Sub arn:aws:s3:::${WebappDeploymentBucket}/*                  
 
   WebappApplication:
-    Type: "AWS::CodeDeploy::Application"
+    Type: AWS::CodeDeploy::Application
     Properties:
       ApplicationName: CodeDeployAppNameWithASG
   WebappDeploymentGroup:
-    Type: "AWS::CodeDeploy::DeploymentGroup"
+    Type: AWS::CodeDeploy::DeploymentGroup
     Properties:
       ApplicationName: !Ref WebappApplication
       ServiceRoleArn: !GetAtt CodeDeployRole.Arn
@@ -315,6 +315,9 @@ Resources:
         FromPort: 8080
         ToPort: 8080
         CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: -1
+        CidrIp: 0.0.0.0/0  
   WebappSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -326,8 +329,11 @@ Resources:
         ToPort: 8080
         SourceSecurityGroupId:
           Ref: ALBSecurityGroup
+      SecurityGroupEgress:
+      - IpProtocol: -1
+        CidrIp: 0.0.0.0/0      
   WebappDeploymentBucket:
-    Type: "AWS::S3::Bucket"
+    Type: AWS::S3::Bucket
     Properties:
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -335,7 +341,7 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
   CodeDeployRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -366,7 +372,7 @@ Resources:
                   - !Sub 'arn:aws:codedeploy:*:${AWS::AccountId}:*'
 
   WebappInstanceProfile:
-    Type: "AWS::IAM::InstanceProfile"
+    Type: AWS::IAM::InstanceProfile
     Properties:
       Roles:
         - Ref: WebappRole
