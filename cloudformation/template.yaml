@@ -1,5 +1,7 @@
+---
 AWSTemplateFormatVersion: 2010-09-09
-Description: 'Cloudformation for provisioning services required to setup the CI/CD using GitHub actions and CodeDeploy'
+Description: 'Cloudformation for provisioning services required to setup the CI/CD using GitHub actions and CodeDeploy. 
+**WARNING** This template creates EC2,VPC and related resources. You will be billed for the AWS resources used if you create a stack from this template'
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -230,7 +232,7 @@ Resources:
             Action:
               - "sts:AssumeRole"
       ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/AmazonSSMFullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore'
       Policies:
         -
           PolicyName: "allow-webapp-deployment-bucket-policy"
@@ -241,7 +243,7 @@ Resources:
                 Effect: "Allow"
                 Action: 
                 - "s3:getObject"
-                Resource: !Sub arn:aws:s3:::${WebappDeploymentBucket}/*
+                Resource: !Sub arn:${AWS::Partition}:s3:::${WebappDeploymentBucket}/*
   IDCProvider:
       Type: AWS::IAM::OIDCProvider
       Properties:
@@ -280,11 +282,11 @@ Resources:
                 - 'codedeploy:RegisterApplicationRevision'
                 - 'codedeploy:List*'
                 Resource:
-                  - !Sub 'arn:aws:codedeploy:*:${AWS::AccountId}:*'
+                  - !Sub 'arn:${AWS::Partition}:codedeploy:*:${AWS::AccountId}:*'
               - Effect: Allow
                 Action:
                 - 's3:putObject'
-                Resource: !Sub arn:aws:s3:::${WebappDeploymentBucket}/*                  
+                Resource: !Sub arn:${AWS::Partition}:s3:::${WebappDeploymentBucket}/*                  
 
   WebappApplication:
     Type: AWS::CodeDeploy::Application
@@ -316,7 +318,7 @@ Resources:
         ToPort: 8080
         CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
-      - IpProtocol: -1
+      - IpProtocol: '-1'
         CidrIp: 0.0.0.0/0  
   WebappSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -330,7 +332,7 @@ Resources:
         SourceSecurityGroupId:
           Ref: ALBSecurityGroup
       SecurityGroupEgress:
-      - IpProtocol: -1
+      - IpProtocol: '-1'
         CidrIp: 0.0.0.0/0      
   WebappDeploymentBucket:
     Type: AWS::S3::Bucket
@@ -369,7 +371,7 @@ Resources:
                   - ec2:CreateTags
                   - iam:PassRole
                 Resource:
-                  - !Sub 'arn:aws:codedeploy:*:${AWS::AccountId}:*'
+                  - !Sub 'arn:${AWS::Partition}:codedeploy:*:${AWS::AccountId}:*'
 
   WebappInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -440,7 +442,7 @@ Resources:
               # firewall-cmd --zone=public --permanent --add-port=8080/tcp
               # firewall-cmd --zone=public --permanent --add-port=8443/tcp
               # firewall-cmd --reload
-              cd /usr/local/tomcat9/bin && sudo chmod +x catalina.sh
+              cd /usr/local/tomcat9/bin && chmod +x catalina.sh
               systemctl daemon-reload
               systemctl start tomcat.service
               systemctl enable tomcat.service
@@ -450,9 +452,9 @@ Resources:
               chmod +x ./install
               ./install auto
               cd /tmp
-              sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
-              sudo systemctl enable amazon-ssm-agent
-              sudo systemctl start amazon-ssm-agent
+              yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+              systemctl enable amazon-ssm-agent
+              systemctl start amazon-ssm-agent
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
