@@ -70,22 +70,22 @@ To deploy the CloudFormation template, complete the following steps:
     6.	Click Choose File. Navigate to template.yml file in your cloned repository at “aws-codedeploy-github-actions-deployment/cloudformation/template.yaml” 
     7.	Select the template.yml file and select next.
     8.	In Specify Stack Details, add or modify values as needed.
-        * Stack name = CodeDeployStack.
-        * VPC and Subnets = (these are pre-populated for you) you can change these values if you prefer to use your own Subnets)
-        * GitHubThumbprintList = 6938fd4d98bab03faadb97b34396831e3780aea1
-        * GitHubRepoName – Name of your GitHub personal repository which you created.
+            - Stack name = CodeDeployStack.
+            - VPC and Subnets = (these are pre-populated for you) you can change these values if you prefer to use your own Subnets)
+            - GitHubThumbprintList = 6938fd4d98bab03faadb97b34396831e3780aea1
+            - GitHubRepoName – Name of your GitHub personal repository which you created.
     9.	On the Options page, click Next.
     10.	Select the acknowledgement box to allow the creation of IAM resources, and then select Create. 
     It will take CloudFormation about 5 minutes to create all the resources. This stack would create below resources.
-       * Two EC2 Linux instances with Tomcat server and CodeDeploy agent installed 
-       * Autoscaling group with Internet Application load balancer
-       * CodeDeploy application name and deployment group
-       * S3 bucket to store build artifacts
-       * Identity and Access Management (IAM) OIDC identity provider
-       * Instance profile for Amazon EC2 
-       * Service role for CodeDeploy
-       * Security groups for ALB and Amazon EC2
-        
+           - Two EC2 Linux instances with Tomcat server and CodeDeploy agent installed 
+           - Autoscaling group with Internet Application load balancer
+           - CodeDeploy application name and deployment group
+           - S3 bucket to store build artifacts
+           - Identity and Access Management (IAM) OIDC identity provider
+           - Instance profile for Amazon EC2 
+           - Service role for CodeDeploy
+           - Security groups for ALB and Amazon EC2
+
 ## GitHub configuration and Testing
 
 Please follow the [blog post](https://aws.amazon.com/blogs/devops/integrating-with-github-actions-ci-cd-pipeline-to-deploy-a-web-app-to-amazon-ec2/) to setup GitHub actions and test the CICD flow.
