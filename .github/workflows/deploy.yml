@@ -7,7 +7,8 @@ env:
   applicationfolder: spring-boot-hello-world-example
   AWS_REGION: ##region##
   S3BUCKET: ##s3-bucket## 
-
+  NUMBER_OF_ATTEMPTS: 50
+  SLEEP_TIME: 3
 
 jobs:
   build:
@@ -17,19 +18,20 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: Checkout Repository
 
-      - uses: aws-actions/configure-aws-credentials@v1
+      - uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
           role-session-name: GitHub-Action-Role
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
+      - name: Set up JDK
+        uses: actions/setup-java@v3
         with:
-          java-version: 1.8
+          distribution: corretto
+          java-version: 17
 
       - name: chmod
         run: chmod -R +x ./.github
@@ -51,13 +53,36 @@ jobs:
       id-token: write
       contents: read
     steps:
-    - uses: actions/checkout@v2
-    - uses: aws-actions/configure-aws-credentials@v1
+    - uses: actions/checkout@v3
+    - uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
         role-session-name: GitHub-Action-Role
         aws-region: ${{ env.AWS_REGION }}
-    - run: |
+    - name: Create Deployment
+      id: create-deployment
+      run: |
         echo "Deploying branch ${{ env.GITHUB_REF }} to ${{ github.event.inputs.environment }}"
         commit_hash=`git rev-parse HEAD`
-        aws deploy create-deployment --application-name CodeDeployAppNameWithASG --deployment-group-name CodeDeployGroupName --github-location repository=$GITHUB_REPOSITORY,commitId=$commit_hash --ignore-application-stop-failures
+        deployment_id=`aws deploy create-deployment --application-name CodeDeployAppNameWithASG --deployment-group-name CodeDeployGroupName --github-location repository=$GITHUB_REPOSITORY,commitId=$commit_hash --ignore-application-stop-failures | jq '.deploymentId'`
+        echo "DEPLOYMENT_ID=$deployment_id" >> $GITHUB_OUTPUT
+    - name: Check Deployment Status
+      run: |
+        echo "Waiting for CodeDeploy ${{ steps.create-deployment.outputs.DEPLOYMENT_ID }} to finish"
+        for i in `seq 1 ${{ env.NUMBER_OF_ATTEMPTS }}`;
+        do
+          status=`aws deploy get-deployment --deployment-id ${{ steps.create-deployment.outputs.DEPLOYMENT_ID }} | jq '.deploymentInfo.status'`
+          echo "Current Status: $status"
+          if [ "$status" == '"Succeeded"' ]; then
+            echo "${{ steps.create-deployment.outputs.DEPLOYMENT_ID }} deployed successfully"
+            exit 0
+          fi
+          if [ "$status" == '"Failed"' ]; then
+            echo "ERROR: ${{ steps.create-deployment.outputs.DEPLOYMENT_ID }} deployment failed!"
+            exit 1
+          fi
+          sleep ${{ env.SLEEP_TIME }}
+        done
+        echo "ERROR: ${{ steps.create-deployment.outputs.DEPLOYMENT_ID }} has reached maximum wait timeout!"
+        exit 1
+
